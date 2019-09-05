@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+#
+#set -x
+#############################
+dict=/usr/share/dict/words
+length=$1
+word_l=()
+words=()
+#############################
+randomize () {
+	local input=$1
+	local length=${#input}
+	local index=0
+	local char
+	local string
+	while [[ $index -lt $length ]]; do
+		char=${input:$index:1}
+		if (( (RANDOM%10) < 4 )); then
+			case $char in
+				a)	char='@';;
+				l)	char=1;;
+				o)	char=0;;
+				s)	char=5;;
+				*)	char=${char^};;
+			esac
+		fi
+		string="${string}${char}"
+		((index++))
+	done
+	echo "$string"
+}
+r_sum () {
+	local total=$1
+	local remain=$total
+	local temp
+	local arr=()
+	until (( $remain == 0 )); do
+		if (( $remain <= 3 )); then
+			arr+=( "$remain" )
+			break
+		fi
+		temp=$(( RANDOM % remain + 1 ))
+		((temp > 24)) && temp=$((RANDOM%24))
+		(( remain -= temp ))
+		arr+=( "$temp" )
+	done
+	echo "${arr[@]}" | sort -R
+}
+gen_pass () {
+	{
+	for l; do
+		randomize $(awk -v l="$l" 'length == l' "$dict" | sort -R | tail -1)
+	done 
+	}	| tr -d '\n'
+	echo
+}
+#############################
+for ((i=0;i<10;i++)); do
+	gen_pass $(r_sum $length)
+done
