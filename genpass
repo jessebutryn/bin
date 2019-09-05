@@ -3,9 +3,8 @@
 #set -x
 #############################
 dict=/usr/share/dict/words
-length=$1
-word_l=()
-words=()
+l=16
+n=10
 #############################
 randomize () {
 	local input=$1
@@ -18,6 +17,7 @@ randomize () {
 		if (( (RANDOM%10) < 4 )); then
 			case $char in
 				a)	char='@';;
+				e)	char=3;;
 				l)	char=1;;
 				o)	char=0;;
 				s)	char=5;;
@@ -39,8 +39,9 @@ r_sum () {
 			arr+=( "$remain" )
 			break
 		fi
-		temp=$(( RANDOM % remain + 1 ))
-		((temp > 24)) && temp=$((RANDOM%24))
+		temp=$(( RANDOM % (remain-2) + 1 ))
+		((temp > 24)) && temp=$((RANDOM%24 + 1 ))
+		[[ $temp -le 1 ]] && continue
 		(( remain -= temp ))
 		arr+=( "$temp" )
 	done
@@ -49,12 +50,25 @@ r_sum () {
 gen_pass () {
 	{
 	for l; do
-		randomize $(awk -v l="$l" 'length == l' "$dict" | sort -R | tail -1)
+		if [[ $complex == true ]]; then
+			randomize $(awk -v l="$l" 'length == l' "$dict" | sort -R | tail -1)
+		else
+			awk -v l="$l" 'length == l' "$dict" | sort -R | tail -1
+		fi
 	done 
-	}	| tr -d '\n'
+	}	| tr '\n' ' '
 	echo
 }
 #############################
-for ((i=0;i<10;i++)); do
-	gen_pass $(r_sum $length)
+while getopts l:n:c opt; do
+	case $opt in
+		l)	l=$OPTARG;;
+		n)	n=$OPTARG;;
+		c)	complex=true;;
+		*)	echo "ERROR: Unknown argument: $opt" >&2; exit 1;;
+	esac
+done
+#############################
+for ((i=0;i<n;i++)); do
+	gen_pass $(r_sum "$l")
 done
