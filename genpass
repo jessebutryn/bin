@@ -13,6 +13,32 @@ squeeze () {
 		tr -d '\n'
 	fi
 }
+really_random () {
+	local length=$1
+	local pass
+	local n
+	local characters=(
+	{A..z}
+	{0..9}
+	'!'
+	'@'
+	'#'
+	'$'
+	'%'
+	'&'
+	'*'
+	'('
+	')'
+	'-'
+	'+'
+	'='
+	)
+	until [[ "${#pass}" -eq "$length" ]]; do
+		n=$((RANDOM%${#characters[@]}))
+		pass="${pass}${characters[n]}"
+	done
+	echo "$pass"
+}
 randomize () {
 	local input=$1
 	local length=${#input}
@@ -70,16 +96,21 @@ gen_pass () {
 	echo
 }
 #############################
-while getopts l:n:cw opt; do
+while getopts l:n:cwr opt; do
 	case $opt in
 		l)	l=$OPTARG;;
 		n)	n=$OPTARG;;
 		c)	complex=true;;
 		w)	words=true;;
+		r)	random=true;;
 		*)	echo "ERROR: Unknown argument: $opt" >&2; exit 1;;
 	esac
 done
 #############################
 for ((i=0;i<n;i++)); do
-	gen_pass $(r_sum "$l")
+	if [[ $random == true ]]; then
+		really_random "$l"
+	else
+		gen_pass $(r_sum "$l")
+	fi
 done
