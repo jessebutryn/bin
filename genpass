@@ -6,6 +6,13 @@ dict=/usr/share/dict/words
 l=16
 n=10
 #############################
+squeeze () {
+	if [[ $words == true ]]; then
+		tr '\n' ' '
+	else
+		tr -d '\n'
+	fi
+}
 randomize () {
 	local input=$1
 	local length=${#input}
@@ -14,13 +21,16 @@ randomize () {
 	local string
 	while [[ $index -lt $length ]]; do
 		char=${input:$index:1}
-		if (( (RANDOM%10) < 4 )); then
+		if (( (RANDOM%10) < 3 )); then
 			case $char in
 				a)	char='@';;
 				e)	char=3;;
+				i)	char='!';;
 				l)	char=1;;
 				o)	char=0;;
-				s)	char=5;;
+				s)	char='$';;
+				t)	char=7;;
+				z)	char=2;;
 				*)	char=${char^};;
 			esac
 		fi
@@ -45,7 +55,7 @@ r_sum () {
 		(( remain -= temp ))
 		arr+=( "$temp" )
 	done
-	echo "${arr[@]}" | sort -R
+	echo "${arr[@]}" | tr ' ' '\n' | sort -R | tr '\n' ' '
 }
 gen_pass () {
 	{
@@ -56,15 +66,16 @@ gen_pass () {
 			awk -v l="$l" 'length == l' "$dict" | sort -R | tail -1
 		fi
 	done 
-	}	| tr '\n' ' '
+	}	| squeeze
 	echo
 }
 #############################
-while getopts l:n:c opt; do
+while getopts l:n:cw opt; do
 	case $opt in
 		l)	l=$OPTARG;;
 		n)	n=$OPTARG;;
 		c)	complex=true;;
+		w)	words=true;;
 		*)	echo "ERROR: Unknown argument: $opt" >&2; exit 1;;
 	esac
 done
