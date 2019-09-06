@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 #
+# This script will produce randomly generated passwords.  By default these will be a selection of words from your local
+# dictionary file.  It defaults to generating ten different 16 character passwords, these can be changed using the
+# -l option for password length and -n option for number of passwords to generate.  The -c option can add complexity to
+# the dictionary words by randomly capitalizing letters and/or changing them to numbers or special characters.  The -w
+# option will retain the spaces between words increasing the chances that your password will read like a phrase.
+#
+# Alternatively the -r option can be used to generate truly random passwords.  This option is also significantly faster
+# than scraping the dictionary file for words.
+#
 #set -x
 #############################
 dict=/usr/share/dict/words
@@ -34,7 +43,7 @@ really_random () {
 	'='
 	)
 	until [[ "${#pass}" -eq "$length" ]]; do
-		n=$((RANDOM%${#characters[@]}))
+		n=$(( RANDOM % ${#characters[@]} ))
 		pass="${pass}${characters[n]}"
 	done
 	echo "$pass"
@@ -47,7 +56,7 @@ randomize () {
 	local string
 	while [[ $index -lt $length ]]; do
 		char=${input:$index:1}
-		if (( (RANDOM%10) < 3 )); then
+		if (( ( RANDOM % 10 ) < 3 )); then
 			case $char in
 				a)	char='@';;
 				e)	char=3;;
@@ -75,8 +84,8 @@ r_sum () {
 			arr+=( "$remain" )
 			break
 		fi
-		temp=$(( RANDOM % (remain-2) + 1 ))
-		((temp > 24)) && temp=$((RANDOM%24 + 1 ))
+		temp=$(( RANDOM % ( remain - 2 ) + 1 ))
+		(( temp > 24 )) && temp=$(( RANDOM % 23 + 1 ))
 		[[ $temp -le 1 ]] && continue
 		(( remain -= temp ))
 		arr+=( "$temp" )
@@ -92,7 +101,7 @@ gen_pass () {
 			awk -v l="$l" 'length == l' "$dict" | sort -R | tail -1
 		fi
 	done 
-	}	| squeeze
+	} | squeeze
 	echo
 }
 #############################

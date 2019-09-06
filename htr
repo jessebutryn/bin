@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+#
+# This script serves as a wrapper around the tr program.
+# I often find myself using tr to convert newlines to spaces/commas, or vice versa.  tr works for this
+# but will also strip the final trailing newline which is unnecessary for what I'm doing and hinders readability.
+# Additionally when converting something into comma separated values it will add a trailing comma which is not
+# ideal for generating proper csv input.  This script aims to eliminate those issues.
+#
+# set -x
+#############################
+_from=$1
+_to=$2
+[[ -f $3 ]] && _file=$3
+#############################
+if [[ -n "$_file" ]]; then
+	cat "$_file" | tr "$_from" "$_to"
+else
+	tr "$_from" "$_to"
+fi | sed "s/$_to\$//"
