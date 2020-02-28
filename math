@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+#
+# This script will take math equations and provide solutions.  It is
+# essentially just a wrapper around bc.
+#
+#set -x
+#############################
+while getopts s: opt; do
+	case $opt in
+		s)	scale=$OPTARG;;
+		*)	printf '%s\n' "Unknown option: $opt" >&2;;
+	esac
+done
+shift $(expr $OPTIND - 1 )
+#############################
+bc -l <<<"scale=${scale:-0}; $@"

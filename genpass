@@ -9,9 +9,13 @@
 # Alternatively the -r option can be used to generate truly random passwords.  This option is also significantly faster
 # than scraping the dictionary file for words.
 #
-#set -x
+# set -x
 #############################
-dict=/usr/share/dict/words
+if [[ -f /usr/local/share/dict/words ]]; then
+	dict=/usr/local/share/dict/words
+else
+	dict=/usr/share/dict/words
+fi
 l=16
 n=10
 #############################
@@ -80,13 +84,13 @@ r_sum () {
 	local temp
 	local arr=()
 	until (( $remain == 0 )); do
-		if (( $remain <= 3 )); then
+		if (( $remain <= 4 )); then
 			arr+=( "$remain" )
 			break
 		fi
 		temp=$(( RANDOM % ( remain - 2 ) + 1 ))
-		(( temp > 24 )) && temp=$(( RANDOM % 23 + 1 ))
-		[[ $temp -le 1 ]] && continue
+		(( temp > 16 )) && temp=$(( RANDOM % 15 + 1 ))
+		[[ $temp -le 2 ]] && continue
 		(( remain -= temp ))
 		arr+=( "$temp" )
 	done

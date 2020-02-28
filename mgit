@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+#
+# set -x
+#######################################
+c=
+git=(command git)
+branch=$("${git[@]}" branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
+#######################################
+(($#<1)) && "${git[@]}" --help
+case $1 in
+	push)	c=push
+		git+=(push --set-upstream origin "$branch")
+	;;
+	branch)	c=branch
+		shift
+		nbranch=$1
+		git+=(branch "$nbranch")
+	;;
+	bc)	c=bc
+		shift
+		nbranch=$1
+		git+=(branch "$nbranch")
+	;;
+	*)	c=other
+		git+=("$@")
+	;;
+esac
+#######################################
+if [[ $c == branch || $c == bc ]] && [[ $branch != master ]]; then
+	printf '%s\n' "You are branching from non-master, use command git to override" >&2
+	exit 1
+elif [[ $c == bc ]]; then
+	"${git[@]}" &&
+	command git checkout "$nbranch"
+else
+	"${git[@]}"
+fi
