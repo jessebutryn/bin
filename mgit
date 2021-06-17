@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# set -x
+[[ $DEBUG == true ]] && set -x
 #######################################
 c=
 git=(command git)
@@ -14,7 +14,12 @@ case $1 in
 	branch)	c=branch
 		shift
 		nbranch=$1
-		git+=(branch "$nbranch")
+		if [[ -z "$nbranch" || "$nbranch" == --list || "$nbranch" == list ]]; then
+			c=branchlist
+			git+=(branch)
+		else
+			git+=(branch "$nbranch")
+		fi
 	;;
 	bc)	c=bc
 		shift
@@ -26,7 +31,7 @@ case $1 in
 	;;
 esac
 #######################################
-if [[ $c == branch || $c == bc ]] && [[ $branch != master ]]; then
+if [[ $c == branch || $c == bc ]] && [[ $branch != master && $branch != main ]]; then
 	printf '%s\n' "You are branching from non-master, use command git to override" >&2
 	exit 1
 elif [[ $c == bc ]]; then
