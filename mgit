@@ -9,22 +9,25 @@ branch=$("${git[@]}" branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'
 (($#<1)) && "${git[@]}" --help
 case $1 in
 	push)	c=push
-		git+=(push --set-upstream origin "$branch")
+			git+=(push --set-upstream origin "$branch")
 	;;
 	branch)	c=branch
-		shift
-		nbranch=$1
-		if [[ -z "$nbranch" || "$nbranch" == --list || "$nbranch" == list ]]; then
-			c=branchlist
-			git+=(branch)
-		else
-			git+=(branch "$nbranch")
-		fi
+			shift
+			nbranch=$1
+			if [[ -z "$nbranch" || "$nbranch" == --list || "$nbranch" == list ]]; then
+				c=branchlist
+				git+=(branch)
+			else
+				git+=(branch "$nbranch")
+			fi
 	;;
-	bc)	c=bc
-		shift
-		nbranch=$1
-		git+=(branch "$nbranch")
+	bc)		c=bc
+			shift
+			nbranch=$1
+			git+=(branch "$nbranch")
+	;;
+	abort)	c=abort
+			master=$("${git[@]}" branch 2> /dev/null | sed -e 's/[* ] \(.*\)/\1/' | grep -E '^main$|^master$')
 	;;
 	*)	c=other
 		git+=("$@")
@@ -37,6 +40,9 @@ if [[ $c == branch || $c == bc ]] && [[ $branch != master && $branch != main ]];
 elif [[ $c == bc ]]; then
 	"${git[@]}" &&
 	command git checkout "$nbranch"
+elif [[ $c == abort ]]; then
+	"${git[@]}" fetch origin
+	"${git[@]}" reset --hard "origin/${master}"
 else
 	"${git[@]}"
 fi
