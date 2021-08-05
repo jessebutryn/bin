@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+#
+[[ $DEBUG == true ]] && set -x
+#######################################
+jq=(command jq)
+args=()
+#######################################
+while getopts d: opt; do
+    case $opt in
+        d) delim=$OPTARG;;
+    esac
+done
+shift $(expr $OPTIND - 1 )
+args=("$@")
+#######################################
+build_it () {
+    t=${#args[@]}
+    for ((i=0;i<t;i++)); do
+        printf '%s ' "${args[i]}"
+        if ((i<(t-1))); then
+            printf ' + "%s" + ' "${delim:-" "}"
+        fi
+    done
+}
+#######################################
+args=$(build_it)
+jq -r "$args"

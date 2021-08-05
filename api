@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+purl=https://api.packet.net
+options=(
+	-Ss
+	-H "Content-Type: application/json"
+	-H "X-Packet-Staff: true"
+	-H "X-Consumer-Token: $PACKET_CONSUMER_TOKEN"
+	-H "X-Auth-Token: $PACKET_API"
+)
+
+call_api () (
+	# This function is intentionally created in a subshell so that any
+	# modifications made to the options array will not be set globally
+	local _uri=$1
+	shift
+	options+=("$@")
+	_response=$(curl "${options[@]}" "${purl}${_uri}")
+	if [[ $_response =~ $'\n'$ ]]; then
+		printf '%s' "$_response"
+	else
+		printf '%s\n' "$_response"
+	fi
+)
+
+call_api "$@"
