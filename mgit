@@ -34,8 +34,8 @@ case $1 in
 	;;
 esac
 #######################################
-if [[ $c == branch || $c == bc ]] && [[ $branch != master && $branch != main ]]; then
-	printf '%s\n' "You are branching from non-master, use command git to override" >&2
+if [[ $c == branch || $c == bc ]] && [[ $branch != master && $branch != main && $branch != development ]]; then
+	printf '%s\n' "You are branching from non-master/development, use command git to override" >&2
 	exit 1
 elif [[ $c == bc ]]; then
 	"${git[@]}" &&
